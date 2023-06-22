@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.board.persistence.BoardMapper">
+
+	<insert id="insert">
+		<selectKey keyProperty="bno" order="BEFORE" resultType="long">
+			select imgboard_seq.nextval from dual
+		</selectKey>
+		insert into imgboard(bno, title, content, writer, readcount, regDate, updateDate) 
+		values(#{bno}, #{title}, #{content}, #{writer}, 0, sysdate, sysdate)
+	</insert>
+
+	<select id="getArticle" resultType="com.board.domain.BoardVO">
+		select * from imgboard where bno=#{bno}
+	</select>
+
+	<update id="update">
+		update imgboard set title=#{title}, content=#{content}, updateDate=sysdate 
+		where bno=#{bno}
+	</update>
+
+	<delete id="delete">
+		delete from imgboard where bno=#{bno}
+	</delete>
+
+	<!-- 게시판 검색할때 조건식 완성해주는 쿼리문 부품으로 만듬 -->
+	<sql id="selKeyword">
+		<trim prefix="where" prefixOverrides="or">
+			<foreach item="sel" collection="selArr">
+				<trim prefix="or">
+					<choose>
+						<when test="sel == 't'.toString()">
+							title like '%' || #{keyword} || '%'
+						</when>
+						<when test="sel == 'c'.toString()">
+							content like '%' || #{keyword} || '%'
+						</when>
+						<when test="sel == 'w'.toString()">
+							writer like '%' || #{keyword} || '%'
+						</when>
+					</choose>
+				</trim>
+			</foreach>
+		</trim>
+	</sql>
+
+	<!-- 일반 페이징처리된 게시글 목록 / 검색했을때 페이징처리된 목록 -->
+	<select id="getListWithPaging" resultType="com.board.domain.BoardVO">
+	<![CDATA[
+		select r, B.* from 
+			(select rownum r, A.* from 
+				(select * from imgboard  ]]>
+	
+		<include refid="selKeyword"></include>
+		
+	<![CDATA[			
+				order by bno desc) A
+			where rownum <= (#{pageNum} * #{listSize}) ) B
+		where r > (#{pageNum} - 1) * #{listSize}
+	]]>
+	</select>
+	
+	<!-- 전체 글 총개수 / 검색했을때 검색글 총개수 -->
+	<select id="getArticleCount" resultType="int">
+		select count(*) from imgboard
+		<include refid="selKeyword"></include>
+	</select>
+
+
+
+
+
+
+
+
+
+
+
+</mapper>
