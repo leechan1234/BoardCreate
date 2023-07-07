@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.tjc.persistence.ReviewimgMapper">
+<!-- 파일 정보 저장 -->
+	<insert id="insertFile">
+	    insert into reviewimg (rinum, reviewnum, path)
+	    values (reviewimg_seq.nextval, #{reviewnum}, #{path})
+	</insert>
+	
+	<!-- 본문글 하나에 해당하는 이미지를 가져오기 -->
+	<select id="getReviewImgs" resultType="com.tjc.domain.ReviewimgVO">
+	    select rinum, reviewnum, path
+	    from reviewimg
+	    where reviewnum = #{reviewnum}
+	</select>
+	
+	<!-- 본문글 하나에 해당하는 이미지 삭제 
+	<delete id="deleteFiles" parameterType="long">
+	    delete from review_img
+	    where reviewnum = #{reviewnum}
+	</delete>
+	-->
+	<!-- renum으로 파일 정보 가져오기 -->
+	<select id="getOneFile" resultType="com.tjc.domain.ReviewimgVO">
+	    select rinum, reviewnum, path
+	    from reviewimg
+	    where rinum = #{rinum}
+	</select>
+	
+	<!-- 리뷰 이미지 삭제 -->
+	<delete id="deleteReviewImages">
+	    delete from reviewimg
+	    where reviewnum = #{reviewnum}
+	</delete>
+	
+	
+	
+	
+	
+	
+	
+	
+	<!-- renum으로 파일 정보 삭제 
+	<delete id="deleteOne">
+	    delete from review_img
+	    where rinum = #{renum}
+	</delete>
+	-->
+</mapper>

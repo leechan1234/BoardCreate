@@ -26,7 +26,9 @@
       <property name="dataSource" ref="dataSource"></property>
    </bean>
    <mybatis-spring:scan base-package="com.board.persistence"/>
+   <mybatis-spring:scan base-package="com.member.persistence"/>
    
    <!-- service 빈으로 등록  -->
    <context:component-scan base-package="com.board.service"/>
+   <context:component-scan base-package="com.member.service"/>
 </beans>

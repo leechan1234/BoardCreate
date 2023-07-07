@@ -5,7 +5,11 @@ import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.springframework.stereotype.Service;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.board.domain.ImgFileVO;
@@ -27,7 +31,12 @@ public class FileServiceImpl implements FileService{
 	public void addFiles(Long bno, MultipartFile[] uploadFile, String path) {
 		// 실제이미지파일 -> /resources/upload 폴더에 저장 
 		// DV에 이미지 파일 정보 저장 
+		saveFiles(bno, uploadFile, path);
 		
+		
+	}//addFiles
+
+	private void saveFiles(Long bno, MultipartFile[] uploadFile, String path) {
 		for(MultipartFile mf : uploadFile) {
 			
 			log.info("mf isEmpty() : {}", mf.isEmpty());
@@ -75,9 +84,8 @@ public class FileServiceImpl implements FileService{
 			}// if !isEmpty()
 			
 		}//for
-		
-	}//addFiles
-
+	}
+	
 
 	@Override
 	public List<ImgFileVO> getBoardImgs(Long bno) {
@@ -87,6 +95,29 @@ public class FileServiceImpl implements FileService{
 		
 		return result;
 	}//getBoardImgs
+
+
+	@Override
+	public void modify(Long bno, MultipartFile[] uploadFile, Long[] removeFiles) {
+		HttpServletRequest request = 
+				((ServletRequestAttributes)RequestContextHolder.currentRequestAttributes())
+				.getRequest();
+		String path = request.getRealPath("/resources/upload");
+		log.info("modify path : {}", path);
+		// uploadFile 저장처리 
+		saveFiles(bno, uploadFile, path); // 파일 추가로 데이터가 넘어왔는지 검사처리 완료 
+		
+		// removeFiles 삭제 처리 
+		if(removeFiles != null) { // null 체크 필요(NullPointerException방지)
+			for(int i = 0; i < removeFiles.length; i++) {
+				// 저장된 폴더경로(path), 삭제할 파일이름(DB)
+				File rf = new File(path, fileMapper.getOneFile(removeFiles[i]).getFilename());
+				rf.delete();  // 실제 파일 삭제 
+				fileMapper.deleteOne(removeFiles[i]); // DB 파일 정보 삭제 
+			}
+		}
+		
+	}
 
 	
 	

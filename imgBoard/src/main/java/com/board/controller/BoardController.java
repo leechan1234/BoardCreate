@@ -1,5 +1,7 @@
 package com.board.controller;
 
+import java.util.Arrays;
+
 import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.stereotype.Controller;
@@ -71,9 +73,47 @@ public class BoardController {
 		return "board/content";
 	}
 	
+//	// 댓글 로직 테스트 
+//	@GetMapping("replyTest")
+//	public String replyTest() {
+//		
+//		
+//		return "board/replytest";
+//	}
 	
+	//글 삭제
+	@PostMapping("delete")
+	public String delete(Long bno, Pager pager) {
+		
+		boardService.remove(bno);
+		
+		//보던 리스트로 돌아가기
+		return "redirect:/board/list" + pager.getParameterQuery();
+	}
 	
+	//글 수정
+	@GetMapping("modify")
+	public String modifyForm(Model model, Long bno, @ModelAttribute("pager")Pager pager) {
+		
+		/// 글 한개 수정
+		model.addAttribute("board" , boardService.get(bno));
+		model.addAttribute("imgList" , fileService.getBoardImgs(bno));
+		return "board/modify";
+	}
 	
+	// removeFiles : 기존 이미지 삭제 체크박스 선택한 값들 담아주는 변수(fno)
+	@PostMapping("modify")
+	public String modifyPro(Pager pager, BoardVO board, Long[] removeFiles, MultipartFile[] uploadFile) {
+		
+		log.info("modifyPro board : {}" , board);
+		log.info("modifyPro removeFiles : {}" , Arrays.toString(removeFiles));
+		log.info("modifyPro uploadFile : {}" , Arrays.toString(uploadFile));
+		// Arrays.toString(배열) : 배열안의 데이터를 출력형태로 리턴
+		
+		//수정처리
+		
+		return "readirect:/board/content" + pager.getParameterQuery() + "&bno=" +  board.getBno();
+	}
 	
 	
 	

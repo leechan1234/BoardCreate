@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.board.persistence.ReplyMapper">
+
+	<!-- 신규 댓글 : rgroup에 rno값 넣기 -->
+	<insert id="insert">
+		<selectKey keyProperty="rno" order="BEFORE" resultType="long">
+			select imgreply_seq.nextval from dual
+		</selectKey>
+		insert into imgreply(rno, bno, rcontent, replyer, rgroup, rstep, rlevel)
+		values(#{rno}, #{bno}, #{rcontent}, #{replyer}, #{rno}, #{rstep}, #{rlevel})
+	</insert>
+	
+	<!-- 기존 답글들 step 올리기 -->
+	<update id="upadateStep">
+		update imgreply set rstep=rstep+1 
+		where rgroup=#{rgroup} and rstep > #{rstep}
+	</update>
+	
+	<!-- 댓글의 답글 저장  -->
+	<insert id="addReReply">
+		<selectKey keyProperty="rno" order="BEFORE" resultType="long">
+			select imgreply_seq.nextval from dual
+		</selectKey>
+		insert into imgreply(rno, bno, rcontent, replyer, rgroup, rstep, rlevel)
+		values(#{rno}, #{bno}, #{rcontent}, #{replyer}, #{rgroup}, #{rstep}, #{rlevel}) 
+	</insert>
+	
+	
+
+	<select id="read" resultType="com.board.domain.ReplyVO">
+		select * from imgreply where rno=#{rno}
+	</select>
+
+	<delete id="delete">
+		delete from imgreply where rno=#{rno}
+	</delete>
+	
+	<delete id="deleteReplies">
+		delete from imgreply where bno=#{bno}
+	</delete>
+	
+	<select id="getListWithPaging" resultType="com.board.domain.ReplyVO">
+	<![CDATA[	
+		select rno, bno, rcontent, replyer, regDate, rgroup, rstep, rlevel 
+		from
+			(select rownum r, rno, bno, rcontent, replyer, regDate, rgroup, rstep, rlevel  
+			from
+				(select rno, bno, rcontent, replyer, regDate, rgroup, rstep, rlevel 
+				from imgreply where bno=#{bno} 
+				order by rgroup desc, rstep asc) 
+			where rownum <= #{pager.pageNum} * #{pager.listSize}
+			order by rgroup desc, rstep asc)
+		where r > (#{pager.pageNum} - 1) * #{pager.listSize}
+	]]>	
+	</select>
+	
+	<select id="getReplyCount" resultType="int">
+		select count(*) from imgreply where bno=#{bno}
+	</select>
+	
+	
+	
+
+
+
+
+</mapper>

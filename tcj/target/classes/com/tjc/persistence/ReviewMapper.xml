@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.tjc.persistence.ReviewMapper">
+
+	<insert id="insertReview">
+	    <selectKey keyProperty="reviewnum" order="BEFORE" resultType="long">
+	        select reviews_seq.nextval from dual
+	    </selectKey>
+	    insert into reviews(reviewnum, id, ordertype, productnum, ordernum, content, title) 
+	    values(#{reviewnum}, #{id}, #{ordertype}, #{productnum}, #{ordernum, jdbcType=NUMERIC}, #{content}, #{title})
+	</insert>
+	
+	<!-- 사진 저장 -->
+		<sql id="selKeyword">
+		<trim prefix="where" prefixOverrides="or">
+   			<foreach item="sel" collection="selArr"> 
+   				<trim prefix="or">
+    				<choose>
+   					<when test="sel == 't'.toString()">
+   						title like '%' || #{keyword} || '%'
+   					</when>
+   					<when test="sel == 'c'.toString()">
+   						content like '%' || #{keyword} || '%'
+   					</when>
+   					<when test="sel == 'i'.toString()">
+   						writer like '%' || #{keyword} || '%'
+   					</when>
+    				</choose>
+   				</trim>
+   			</foreach>
+   		</trim>
+	</sql>
+	
+	
+			<!-- 글 전체조회 + 페이징 처리 : 전체목록 / 키워드 검색시 둘다 사용가능 -->
+		<select id="getListWithPaging" resultType="com.tjc.domain.ReviewVO">
+		    <![CDATA[
+		    select r, B.* from 
+		        (select rownum r, A.* from 
+		            (select * from reviews  
+		    ]]>
+		    <include refid="selKeyword"></include>	
+		    <![CDATA[		
+		            order by reviewnum desc) A 
+		        where rownum <= (#{pageNum} * #{listSize}) ) B    
+		    where r > (#{pageNum} - 1) * #{listSize}
+		    ]]>
+		</select>
+		
+		<!-- 전체 글의 개수 조회 : 전체목록과 키워드검색할때 둘다 사용 가능 -->
+		<select id="getReviewCount" resultType="int">
+		    select count(*) from reviews
+		    <include refid="selKeyword"></include>
+		</select>
+		
+		<!-- 글 한개 조회 -->
+		<select id="getReview" resultType="com.tjc.domain.ReviewVO">
+		    select * from reviews where reviewnum = #{reviewnum}
+		</select>
+		
+		<!-- 부품에 대한 리뷰 목록 가져오기 -->
+		<select id="getPartsReviews" resultType="com.tjc.domain.ReviewVO">
+		    select * from reviews
+		    where ordertype = #{ordertype}
+		    and productnum = #{productnum}
+		</select>
+	
+
+	<!-- 리뷰 삭제 -->
+	<delete id="deleteReview">
+	  delete from reviews
+	  where reviewnum = #{reviewnum} 
+	</delete>
+
+	<!-- 사진테이블 삭제  -->
+	
+	<delete id="deleteReviewImages">
+		  delete from reviewimg
+		  where reviewnum = #{reviewnum}
+	</delete>
+
+	
+	
+	
+	
+</mapper>

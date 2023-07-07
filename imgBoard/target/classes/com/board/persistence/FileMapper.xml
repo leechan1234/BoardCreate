@@ -16,10 +16,25 @@
 		select * from imgfile where bno=#{bno}
 	</select>
 
+	<delete id="deleteFiles">
+		delete from imgfile where bno=#{bno}
+	</delete>
 
+	<select id="getOneFile" resultType="com.board.domain.ImgFileVO">
+		select * from imgfile where fno=#{fno}
+	</select>
+
+	<delete id="deleteOne">
+		delete from imgfile where fno=#{fno}
+	</delete>
 
 
 
 
 
 </mapper>
+
+
+
+
+

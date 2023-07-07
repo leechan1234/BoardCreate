@@ -15,7 +15,8 @@ public interface FileService {
 	// 본문글 하나에 해당하는 이미지들 가져오기 
 	public List<ImgFileVO> getBoardImgs(Long bno);
 	
-	
+	// 파일 정보 수정 
+	public void modify(Long bno, MultipartFile[] uploadFile, Long[] removeFiles);
 	
 	
 }

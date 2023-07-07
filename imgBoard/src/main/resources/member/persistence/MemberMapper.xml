@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.member.persistence.MemberMapper">
+
+	<insert id="insertMember">
+		insert into member(id, pw, name, email, phone, gender) 
+		values(#{id}, #{pw}, #{name}, #{email}, #{phone}, #{gender}) 
+	</insert>
+
+	<!-- 로그인 / 아이디 존재여부 확인(id유효성검사) -->
+	<select id="idPwCheck" resultType="int">
+		select count(*) from member where id=#{id}
+		<if test="pw != null">
+		 	and pw=#{pw}
+		</if>
+	</select>
+	
+	<select id="getMember" resultType="com.member.domain.MemberVO">
+		select * from member where id=#{id}
+	</select>
+	
+	<update id="updateMember">
+		update member 
+		<trim prefix="set">
+			<if test="name != null">name=#{name},</if>
+			<if test="email != null">email=#{email},</if>
+			<if test="phone != null">phone=#{phone}</if>
+		</trim>
+		where id=#{id}
+	</update>
+	
+	<delete id="deleteMember">
+		delete from member where id=#{id}
+	</delete>
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+
+
+
+
+
+</mapper>
