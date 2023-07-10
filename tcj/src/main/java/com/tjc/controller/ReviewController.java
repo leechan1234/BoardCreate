@@ -34,6 +34,7 @@ public class ReviewController {
 	private final ReviewimgService reviewimgService; // 리뷰 이미지 처리
 
 	// 리뷰게시판 폼 요청
+	
 	@GetMapping("write")
 	public String write(Model model) {
 		return "board/write";
@@ -118,8 +119,6 @@ public class ReviewController {
 		return "redirect:/board/list" + pageInfo.getParameterToQueryString();
 	}
 }
-
-
 
 
 
